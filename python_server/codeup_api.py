@@ -492,9 +492,13 @@ async def generate_ai_report(
     try:
         # 直接使用Dify API，参考test_ai_report.py的成功实现
         import requests
+        import os
         
-        dify_url = "https://dify.hetunai.cn/v1/chat-messages"
-        api_key = "app-yv64naat986cPlBXRkxIlDkT"
+        dify_url = os.getenv("DIFY_BASE_URL", "https://dify.hetunai.cn/v1") + "/chat-messages"
+        api_key = os.getenv("DIFY_API_KEY")
+        
+        if not api_key:
+            raise HTTPException(status_code=500, detail="DIFY_API_KEY环境变量未设置")
         
         headers = {
             "Authorization": f"Bearer {api_key}",

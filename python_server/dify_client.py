@@ -8,6 +8,10 @@ from fastapi import HTTPException
 from models import DifyRequest
 from logger_config import setup_logger, INFO
 import os
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 # 配置日志
 log_level = os.environ.get('LOG_LEVEL', 'INFO')
@@ -24,8 +28,12 @@ class DifyAIClient:
     """Dify AI客户端，处理AI报告生成"""
     
     def __init__(self):
-        self.base_url = "https://dify.hetunai.cn/v1"
-        self.api_key = "app-yv64naat986cPlBXRkxIlDkT"
+        self.base_url = os.getenv("DIFY_BASE_URL", "https://dify.hetunai.cn/v1")
+        self.api_key = os.getenv("DIFY_API_KEY")
+        
+        if not self.api_key:
+            raise ValueError("DIFY_API_KEY环境变量未设置，请在.env文件中配置")
+        
         self.headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"

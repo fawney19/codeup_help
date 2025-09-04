@@ -4,13 +4,21 @@
 """
 import json
 import requests
+import os
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 
 def test_dify_chat():
     """测试Dify AI聊天功能（流式输出）"""
     # Dify API配置
-    dify_url = "https://dify.hetunai.cn/v1/chat-messages"
-    api_key = "app-yv64naat986cPlBXRkxIlDkT"
+    dify_url = os.getenv("DIFY_BASE_URL", "https://dify.hetunai.cn/v1") + "/chat-messages"
+    api_key = os.getenv("DIFY_API_KEY")
+    if not api_key:
+        print("❌ DIFY_API_KEY环境变量未设置")
+        return
     
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -72,8 +80,11 @@ def test_dify_chat():
 def test_dify_report_generation():
     """测试Dify生成项目报告（流式输出）"""
     # Dify API配置
-    dify_url = "https://dify.hetunai.cn/v1/chat-messages"
-    api_key = "app-yv64naat986cPlBXRkxIlDkT"
+    dify_url = os.getenv("DIFY_BASE_URL", "https://dify.hetunai.cn/v1") + "/chat-messages"
+    api_key = os.getenv("DIFY_API_KEY")
+    if not api_key:
+        print("❌ DIFY_API_KEY环境变量未设置")
+        return
     
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -154,8 +165,11 @@ def test_dify_report_generation():
 def test_dify_streaming():
     """测试Dify流式响应（优化版）"""
     # Dify API配置
-    dify_url = "https://dify.hetunai.cn/v1/chat-messages"
-    api_key = "app-yv64naat986cPlBXRkxIlDkT"
+    dify_url = os.getenv("DIFY_BASE_URL", "https://dify.hetunai.cn/v1") + "/chat-messages"
+    api_key = os.getenv("DIFY_API_KEY")
+    if not api_key:
+        print("❌ DIFY_API_KEY环境变量未设置")
+        return
     
     headers = {
         "Authorization": f"Bearer {api_key}",
