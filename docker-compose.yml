@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:80"
+    environment:
+      - DIFY_API_URL=${DIFY_API_URL:-https://api.dify.ai/v1}
+      - DIFY_API_KEY=${DIFY_API_KEY}
+    env_file:
+      - .env
+    restart: unless-stopped
