@@ -12,6 +12,7 @@ export const useProjectsStore = defineStore('projects', () => {
   
   // 缓存相关状态 - 仅在同一会话中有效，页面刷新时自动清空
   const lastSearchQuery = ref('')
+  const lastPage = ref(1)
   const isStatsCached = ref(false)
   const isProjectsCached = ref(false)
 
@@ -51,9 +52,9 @@ export const useProjectsStore = defineStore('projects', () => {
   }
 
   // 检查项目列表缓存是否有效
-  const isProjectsCacheValid = (searchQuery = '') => {
+  const isProjectsCacheValid = (searchQuery = '', page = 1) => {
     if (!isProjectsCached.value) return false
-    return lastSearchQuery.value === searchQuery
+    return lastSearchQuery.value === searchQuery && lastPage.value === page
   }
 
   // 获取项目统计
@@ -62,7 +63,6 @@ export const useProjectsStore = defineStore('projects', () => {
     
     // 检查缓存是否有效，除非强制刷新
     if (!forceRefresh && isStatsCacheValid(searchQuery)) {
-      console.log('Using cached stats data')
       return { success: true, data: stats.value }
     }
     
@@ -74,7 +74,6 @@ export const useProjectsStore = defineStore('projects', () => {
         // 更新统计缓存状态和搜索查询
         isStatsCached.value = true
         lastSearchQuery.value = searchQuery
-        console.log('Fetched fresh stats data')
         return { success: true, data: response.data }
       }
       return { success: false, error: response.message }
@@ -89,10 +88,10 @@ export const useProjectsStore = defineStore('projects', () => {
   // 获取项目列表
   const fetchProjects = async (params = {}, forceRefresh = false) => {
     const searchQuery = params.search || ''
+    const page = params.page || 1
     
     // 检查缓存是否有效，除非强制刷新
-    if (!forceRefresh && isProjectsCacheValid(searchQuery)) {
-      console.log('Using cached projects data')
+    if (!forceRefresh && isProjectsCacheValid(searchQuery, page)) {
       return { success: true, data: { projects: projects.value, pagination: pagination.value } }
     }
     
@@ -105,7 +104,7 @@ export const useProjectsStore = defineStore('projects', () => {
         // 更新项目缓存状态和搜索查询
         isProjectsCached.value = true
         lastSearchQuery.value = searchQuery
-        console.log('Fetched fresh projects data')
+        lastPage.value = page
         return { success: true, data: response.data }
       }
       return { success: false, error: response.message }
@@ -273,6 +272,7 @@ export const useProjectsStore = defineStore('projects', () => {
     isStatsCached.value = false
     isProjectsCached.value = false
     lastSearchQuery.value = ''
+    lastPage.value = 1
   }
 
   return {

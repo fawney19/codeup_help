@@ -1,19 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
     <!-- Header -->
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
+    <header class="border-b-4 border-black bg-brutal-cyan">
+      <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex justify-between items-center">
           <div>
             <h1 
-              class="text-3xl font-bold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+              class="text-4xl font-black text-gray-800 uppercase cursor-pointer hover:bg-brutal-yellow hover:px-2 transition-all"
               @click="goToProjectList"
             >
               {{ projectName }}
             </h1>
-            <p class="mt-1 text-sm text-gray-500">
+            <div class="bg-blue-600 text-white px-3 py-1 inline-block mt-2 font-bold text-sm">
               {{ currentProject?.overview?.description || '项目活动时间线' }}
-            </p>
+            </div>
           </div>
           <div class="flex items-center">
             <UserAvatar />
@@ -23,127 +23,146 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-6 px-6">
       <!-- Time Filter Section -->
-      <Card class="p-6 mb-8">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">时间筛选器</h2>
-        <div class="flex flex-wrap gap-3">
-          <Button 
+      <div class="bg-brutal-yellow border-4 border-blue-600 shadow-brutal p-6 mb-8">
+        <h2 class="text-2xl font-black text-gray-800 uppercase mb-4 flex items-center">
+          <Clock class="w-6 h-6 mr-3 text-blue-600" />
+          时间筛选器
+        </h2>
+        <div class="flex flex-wrap gap-4">
+          <button 
             v-for="filter in timeFilters" 
             :key="filter.value"
-            :variant="activeTimeFilter === filter.value ? 'default' : 'outline'"
             @click="setTimeFilter(filter.value)"
-            class="flex items-center"
+            class="border-4 border-blue-600 px-4 py-2 font-black text-gray-800 uppercase transition-all hover:transform hover:scale-105"
+            :class="activeTimeFilter === filter.value 
+              ? 'bg-blue-600 text-brutal-yellow shadow-brutal-sm' 
+              : 'bg-white hover:bg-brutal-pink'"
           >
-            <component :is="filter.icon" class="w-4 h-4 mr-2" />
             {{ filter.label }}
-          </Button>
+          </button>
         </div>
         
         <!-- Custom Date Range -->
-        <!-- 日期范围选择器 -->
-        <div class="mt-4 flex flex-wrap gap-4">
+        <div class="mt-6 flex flex-wrap gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
-            <Input 
+            <label class="block text-lg font-black text-gray-800 uppercase mb-2 flex items-center">
+              <Calendar class="w-5 h-5 mr-2 text-blue-600" />
+              开始日期
+            </label>
+            <input 
               type="date" 
               v-model="startDate" 
               @change="loadActivities"
-              class="w-40"
+              class="border-4 border-blue-600 px-3 py-2 font-bold focus:outline-none focus:bg-brutal-cyan"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
-            <Input 
+            <label class="block text-lg font-black text-gray-800 uppercase mb-2 flex items-center">
+              <Calendar class="w-5 h-5 mr-2 text-blue-600" />
+              结束日期
+            </label>
+            <input 
               type="date" 
               v-model="endDate" 
               @change="loadActivities"
-              class="w-40"
+              class="border-4 border-blue-600 px-3 py-2 font-bold focus:outline-none focus:bg-brutal-cyan"
             />
           </div>
           <div class="flex items-end">
-            <Button @click="loadActivities" variant="outline">
-              <Search class="w-4 h-4 mr-2" />
+            <button 
+              @click="loadActivities" 
+              class="bg-brutal-green border-4 border-blue-600 shadow-brutal px-6 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            >
+              <Search class="w-5 h-5 mr-2" />
               查询
-            </Button>
+            </button>
           </div>
         </div>
-
-      </Card>
+      </div>
 
       <!-- Activity Summary -->
-      <Card v-if="activitySummary" class="p-6 mb-8">
-        <div class="flex justify-between items-start mb-4">
-          <h2 class="text-lg font-medium text-gray-900">活动概览</h2>
-          <Button 
-            variant="default" 
-            size="sm" 
+      <div v-if="activitySummary" class="bg-brutal-pink border-4 border-blue-600 shadow-brutal p-6 mb-8">
+        <div class="flex justify-between items-start mb-6">
+          <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
+            <BarChart3 class="w-6 h-6 mr-3 text-blue-600" />
+            活动概览
+          </h2>
+          <button 
             @click="openAIReportModal"
             :disabled="!activities.length"
+            class="bg-brutal-orange border-4 border-blue-600 shadow-brutal px-4 py-2 font-black text-gray-800 uppercase hover:transform hover:scale-105 transition-all disabled:opacity-50"
           >
-            <Sparkles class="w-4 h-4 mr-2" />
+            <Sparkles class="w-5 h-5 mr-2" />
             生成AI报告
-          </Button>
+          </button>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div class="text-center p-4 bg-blue-50 rounded-lg">
-            <div class="text-2xl font-bold text-blue-600">{{ activitySummary.pushCount }}</div>
-            <div class="text-sm text-gray-600">推送次数</div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-brutal-cyan border-4 border-blue-600 text-center p-4">
+            <div class="text-3xl font-black text-gray-800">{{ activitySummary.pushCount }}</div>
+            <div class="text-sm font-bold text-gray-800 uppercase">推送次数</div>
           </div>
-          <div class="text-center p-4 bg-green-50 rounded-lg">
-            <div class="text-2xl font-bold text-green-600">{{ activitySummary.commitCount }}</div>
-            <div class="text-sm text-gray-600">提交数量</div>
+          <div class="bg-brutal-green border-4 border-blue-600 text-center p-4">
+            <div class="text-3xl font-black text-gray-800">{{ activitySummary.commitCount }}</div>
+            <div class="text-sm font-bold text-gray-800 uppercase">提交数量</div>
           </div>
-          <div class="text-center p-4 bg-yellow-50 rounded-lg">
-            <div class="text-2xl font-bold text-yellow-600">{{ activitySummary.fileChanges }}</div>
-            <div class="text-sm text-gray-600">文件变更</div>
+          <div class="bg-brutal-yellow border-4 border-blue-600 text-center p-4">
+            <div class="text-3xl font-black text-gray-800">{{ activitySummary.fileChanges }}</div>
+            <div class="text-sm font-bold text-gray-800 uppercase">文件变更</div>
           </div>
-          <div class="text-center p-4 bg-purple-50 rounded-lg">
-            <div class="text-2xl font-bold text-purple-600">{{ activitySummary.activeDays }}</div>
-            <div class="text-sm text-gray-600">活跃天数</div>
+          <div class="bg-brutal-orange border-4 border-blue-600 text-center p-4">
+            <div class="text-3xl font-black text-gray-800">{{ activitySummary.activeDays }}</div>
+            <div class="text-sm font-bold text-gray-800 uppercase">活跃天数</div>
           </div>
         </div>
-
-      </Card>
+      </div>
 
       <!-- Activity Timeline -->
-      <Card class="p-6">
+      <div class="bg-white border-4 border-blue-600 shadow-brutal-lg p-6">
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-lg font-medium text-gray-900">活动时间线</h2>
-          <div v-if="Object.keys(groupedActivities).length > 0" class="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm"
+          <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
+            <TrendingUp class="w-6 h-6 mr-3 text-blue-600" />
+            活动时间线
+          </h2>
+          <div v-if="Object.keys(groupedActivities).length > 0" class="flex items-center space-x-4">
+            <button 
               @click="collapseAllDates"
               v-if="collapsedDates.size < Object.keys(groupedActivities).length"
+              class="bg-brutal-cyan border-4 border-blue-600 px-3 py-1 font-black text-gray-800 text-sm uppercase hover:bg-brutal-pink transition-colors"
             >
-              <ChevronRight class="w-4 h-4 mr-2" />
+              <FolderMinus class="w-4 h-4 mr-2" />
               全部收缩
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
+            </button>
+            <button 
               @click="expandAllDates"
               v-if="collapsedDates.size > 0"
+              class="bg-brutal-green border-4 border-blue-600 px-3 py-1 font-black text-gray-800 text-sm uppercase hover:bg-brutal-yellow transition-colors"
             >
-              <ChevronDown class="w-4 h-4 mr-2" />
+              <FolderOpen class="w-4 h-4 mr-2" />
               全部展开
-            </Button>
+            </button>
           </div>
         </div>
         
         <div v-if="loading" class="text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p class="mt-4 text-gray-500">加载活动记录中...</p>
+          <div class="bg-brutal-yellow border-4 border-blue-600 shadow-brutal p-6 inline-block">
+            <div class="text-xl font-black text-gray-800 uppercase mb-2 flex items-center justify-center">
+              <Loader2 class="w-6 h-6 mr-3 animate-spin text-blue-600" />
+              加载中
+            </div>
+            <div class="text-sm font-bold text-gray-800">正在获取活动记录...</div>
+          </div>
         </div>
 
         <div v-else-if="activities.length === 0" class="text-center py-12">
-          <Activity class="mx-auto h-12 w-12 text-gray-400" />
-          <h3 class="mt-2 text-sm font-medium text-gray-900">没有找到活动记录</h3>
-          <p class="mt-1 text-sm text-gray-500">
-            在所选时间范围内没有找到任何推送活动
-          </p>
+          <div class="bg-brutal-orange border-4 border-blue-600 shadow-brutal-lg p-8 max-w-md mx-auto transform -rotate-1">
+            <h3 class="text-xl font-black text-gray-800 uppercase mb-4">📭 没有活动记录</h3>
+            <p class="text-sm font-bold text-gray-800">
+              在所选时间范围内没有找到任何推送活动
+            </p>
+          </div>
         </div>
 
         <div v-else class="space-y-6">
@@ -151,20 +170,19 @@
           <div v-for="(dayActivities, date) in groupedActivities" :key="date" class="relative">
             <!-- Date Header -->
             <div 
-              class="flex items-center mb-4 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -mx-2 transition-colors"
+              class="flex items-center mb-4 cursor-pointer hover:bg-brutal-yellow hover:px-2 p-2 -mx-2 transition-all border-2 border-blue-600"
               @click="toggleDateCollapse(date)"
             >
               <div class="flex items-center">
-                <component 
-                  :is="isDateCollapsed(date) ? ChevronRight : ChevronDown" 
-                  class="w-5 h-5 text-gray-500 mr-2 transition-transform" 
-                />
-                <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                <span class="w-6 h-6 bg-blue-600 text-white flex items-center justify-center font-black mr-3">
+                  {{ isDateCollapsed(date) ? '►' : '▼' }}
+                </span>
+                <div class="bg-brutal-pink border-2 border-blue-600 px-4 py-2 font-black text-gray-800 text-sm uppercase">
                   {{ formatDate(date) }}
                 </div>
               </div>
-              <div class="flex-1 h-px bg-gray-200 ml-4"></div>
-              <div class="ml-4 text-sm text-gray-500">
+              <div class="flex-1 h-1 bg-blue-600 ml-4"></div>
+              <div class="ml-4 bg-blue-600 text-white px-2 py-1 font-bold text-xs uppercase">
                 {{ dayActivities.length }} 个活动
               </div>
             </div>
@@ -172,16 +190,16 @@
             <!-- Activities for this date -->
             <div 
               v-if="!isDateCollapsed(date)" 
-              class="pl-4 border-l-2 border-gray-200 space-y-4 transition-all duration-200"
+              class="pl-4 border-l-4 border-black space-y-4 transition-all duration-200"
             >
               <div 
                 v-for="activity in dayActivities" 
                 :key="activity.id || activity.created_at"
-                class="relative bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+                class="relative border-4 border-blue-600 shadow-brutal bg-white p-4 hover:shadow-brutal-lg hover:transform hover:-translate-y-1 transition-all"
               >
                 <!-- Activity Icon -->
-                <div class="absolute -left-8 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                  <GitCommit class="w-3 h-3 text-white" />
+                <div class="absolute -left-8 w-8 h-8 bg-brutal-green border-2 border-blue-600 flex items-center justify-center font-black text-gray-800 text-xs">
+                  <FileText class="w-4 h-4" />
                 </div>
 
                 <!-- Activity Content -->
@@ -229,112 +247,126 @@
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </main>
 
     <!-- AI Report Modal -->
     <div 
       v-if="showAIReportModal" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       @click="closeAIReportModal"
     >
       <div 
-        class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] m-4 flex flex-col"
+        class="bg-white border-4 border-blue-600 shadow-brutal-lg max-w-4xl w-full max-h-[90vh] flex flex-col transform rotate-1 hover:rotate-0 transition-transform duration-300"
         @click.stop
       >
         <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b">
-          <h2 class="text-xl font-semibold text-gray-900 flex items-center">
-            <Sparkles class="w-5 h-5 mr-2 text-blue-600" />
+        <div class="bg-brutal-yellow border-b-4 border-blue-600 p-6 flex items-center justify-between">
+          <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
+            <Sparkles class="w-6 h-6 mr-3 text-blue-600" />
             AI智能报告
           </h2>
           <div class="flex items-center space-x-3">
-            <Button 
-              variant="default" 
-              size="sm" 
+            <button 
               @click="handleAIReportButtonClick"
               :disabled="aiGenerating"
+              class="bg-brutal-green border-4 border-blue-600 shadow-brutal px-4 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               data-ai-generate-btn
             >
-              <Sparkles class="w-4 h-4 mr-2" />
-              {{ aiGenerating ? '正在生成...' : (aiReport ? '重新生成AI报告' : '生成AI报告') }}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+              <Sparkles class="w-4 h-4 mr-2 inline" />
+              {{ aiGenerating ? '生成中...' : (aiReport ? '重新生成' : '生成报告') }}
+            </button>
+            <button 
               @click="closeAIReportModal"
+              class="bg-brutal-red border-4 border-blue-600 shadow-brutal px-3 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
             >
               <X class="w-4 h-4" />
-            </Button>
+            </button>
           </div>
         </div>
 
         <!-- Modal Content -->
-        <div class="flex-1 overflow-auto p-6">
+        <div class="flex-1 overflow-auto p-6 bg-white">
           <!-- Loading State -->
           <div v-if="aiGenerating && !aiReport" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p class="mt-4 text-gray-500">正在生成AI报告...</p>
-            <p v-if="generateDuration" class="mt-2 text-sm text-gray-400">
-              已耗时: {{ generateDuration }}
-            </p>
+            <div class="bg-brutal-cyan border-4 border-blue-600 shadow-brutal p-8 inline-block transform -rotate-1">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+              <p class="mt-4 text-gray-800 font-black uppercase flex items-center justify-center">
+                <Activity class="w-4 h-4 mr-2" />
+                正在生成AI报告...
+              </p>
+              <p v-if="generateDuration" class="mt-2 text-sm text-gray-600 font-bold flex items-center justify-center">
+                <Clock class="w-3 h-3 mr-1" />
+                已耗时: {{ generateDuration }}
+              </p>
+            </div>
           </div>
           
           <!-- AI Report Content -->
-          <div v-else-if="aiReport" class="space-y-4">
-            <div class="flex items-center justify-between">
+          <div v-else-if="aiReport" class="space-y-6">
+            <div class="bg-brutal-pink border-4 border-blue-600 shadow-brutal p-4 flex items-center justify-between transform rotate-1">
               <div>
-                <h3 class="text-lg font-medium text-gray-900">报告内容</h3>
-                <div class="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                  <span v-if="aiGenerateEndTime">
-                    生成于: {{ aiGenerateEndTime.toLocaleString('zh-CN') }}
+                <h3 class="text-xl font-black text-gray-800 uppercase flex items-center">
+                  <FileText class="w-5 h-5 mr-2" />
+                  报告内容
+                </h3>
+                <div class="flex items-center space-x-4 mt-2 text-sm font-bold text-gray-600">
+                  <span v-if="aiGenerateEndTime" class="bg-blue-600 text-white px-2 py-1 rounded flex items-center">
+                    <Calendar class="w-3 h-3 mr-1" />
+                    {{ aiGenerateEndTime.toLocaleString('zh-CN') }}
                   </span>
-                  <span v-if="generateDuration">
-                    耗时: {{ generateDuration }}
+                  <span v-if="generateDuration" class="bg-blue-600 text-white px-2 py-1 rounded flex items-center">
+                    <Clock class="w-3 h-3 mr-1" />
+                    {{ generateDuration }}
                   </span>
                 </div>
               </div>
               <div class="flex space-x-2">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
+                <button 
                   @click="copyReport"
-                  class="transition-all duration-200 active:scale-95 hover:bg-gray-50"
+                  class="bg-brutal-cyan border-4 border-blue-600 shadow-brutal-sm px-3 py-2 font-bold text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xs"
                 >
-                  <Copy class="w-4 h-4 mr-2" />
-                  复制报告
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
+                  <Copy class="w-3 h-3 mr-1 inline" />
+                  复制
+                </button>
+                <button 
                   @click="copyReportAsText"
-                  class="transition-all duration-200 active:scale-95 hover:bg-gray-50"
+                  class="bg-brutal-green border-4 border-blue-600 shadow-brutal-sm px-3 py-2 font-bold text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xs"
                 >
-                  <FileText class="w-4 h-4 mr-2" />
-                  复制文本
-                </Button>
-                <Button size="sm" variant="outline" @click="downloadReport">
-                  <Download class="w-4 h-4 mr-2" />
-                  下载报告
-                </Button>
+                  <FileText class="w-3 h-3 mr-1 inline" />
+                  文本
+                </button>
+                <button 
+                  @click="downloadReport"
+                  class="bg-brutal-orange border-4 border-blue-600 shadow-brutal-sm px-3 py-2 font-bold text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xs"
+                >
+                  <Download class="w-3 h-3 mr-1 inline" />
+                  下载
+                </button>
               </div>
             </div>
             <div 
               ref="reportContainer"
-              class="border rounded-lg p-4 overflow-auto max-h-96 scroll-smooth bg-white"
+              class="border-4 border-blue-600 shadow-brutal-sm p-6 overflow-auto max-h-96 scroll-smooth bg-white transform -rotate-1"
             >
               <!-- 加载中显示 -->
               <div v-if="aiGenerating" class="flex flex-col items-center justify-center py-12">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-                <p class="text-gray-600 text-sm">正在生成AI报告...</p>
-                <p v-if="generateDuration" class="text-gray-400 text-xs mt-2">
-                  已耗时: {{ generateDuration }}
+                <div class="bg-brutal-orange border-4 border-blue-600 shadow-brutal p-4 inline-block">
+                  <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+                </div>
+                <p class="text-gray-800 font-bold text-sm mt-4 flex items-center justify-center">
+                  <Activity class="w-4 h-4 mr-2" />
+                  正在生成AI报告...
+                </p>
+                <p v-if="generateDuration" class="text-gray-600 font-bold text-xs mt-2 flex items-center justify-center">
+                  <Clock class="w-3 h-3 mr-1" />
+                  {{ generateDuration }}
                 </p>
               </div>
               <!-- 生成完成后显示报告内容 -->
               <div 
                 v-else 
-                class="whitespace-pre-wrap font-mono text-sm text-gray-800"
+                class="whitespace-pre-wrap font-mono text-sm text-gray-800 leading-relaxed"
               >
                 {{ aiReport }}
               </div>
@@ -343,9 +375,18 @@
 
           <!-- Empty State -->
           <div v-else class="text-center py-12">
-            <Sparkles class="w-12 h-12 text-blue-400 mb-4 mx-auto" />
-            <h3 class="text-lg font-medium text-gray-900 mb-2">AI智能报告</h3>
-            <p class="text-sm text-gray-500 mb-4">点击上方"生成AI报告"按钮生成智能分析报告</p>
+            <div class="bg-brutal-yellow border-4 border-blue-600 shadow-brutal p-8 inline-block transform rotate-1 hover:-rotate-1 transition-transform duration-300">
+              <Sparkles class="w-16 h-16 text-blue-600 mb-4 mx-auto" />
+              <h3 class="text-2xl font-black text-gray-800 uppercase mb-4 flex items-center justify-center">
+                <Sparkles class="w-8 h-8 mr-3" />
+                AI智能报告
+              </h3>
+              <p class="text-sm font-bold text-gray-800 mb-4">点击上方按钮生成智能分析报告</p>
+              <div class="text-xs text-gray-600 font-bold flex items-center justify-center">
+                <Activity class="w-4 h-4 mr-2" />
+                AI将分析您的项目活动并生成详细报告
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -358,28 +399,29 @@
           <div 
             v-for="(toast, index) in toasts"
             :key="toast.id"
-            class="bg-green-50 border-2 border-green-400 rounded-lg shadow-2xl overflow-hidden animate-fade-in toast-container min-w-[300px] max-w-[400px]"
+            class="bg-brutal-green border-4 border-blue-600 shadow-brutal overflow-hidden animate-fade-in toast-container min-w-[300px] max-w-[400px] transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
             :style="{ 
               'z-index': 99999 - index,
-              'margin-top': index > 0 ? '0.5rem' : '0'
+              'margin-top': index > 0 ? '0.5rem' : '0',
+              'transform': `rotate(${index % 2 === 0 ? '1deg' : '-1deg'})`
             }"
           >
-            <div class="countdown-bar" :key="'bar-' + toast.id"></div>
+            <div class="countdown-bar bg-blue-600" :key="'bar-' + toast.id"></div>
             <div class="flex items-center px-4 py-3">
               <div class="flex-shrink-0">
-                <CheckCircle class="w-5 h-5 text-green-500" />
+                <CheckCircle class="w-5 h-5 text-blue-600" />
               </div>
               <div class="ml-3 flex-1">
-                <p class="text-sm font-medium text-gray-900">
+                <p class="text-sm font-black text-gray-800 uppercase">
                   {{ toast.message }}
                 </p>
               </div>
               <div class="ml-2">
                 <button 
                   @click="removeToast(toast.id)"
-                  class="text-gray-400 hover:text-gray-600 transition-colors"
+                  class="bg-brutal-red border-2 border-blue-600 shadow-brutal-sm px-2 py-1 font-bold text-gray-800 hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
                 >
-                  <X class="w-4 h-4" />
+                  <X class="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -417,7 +459,12 @@ import {
   ChevronDown,
   ChevronRight,
   X,
-  CheckCircle
+  CheckCircle,
+  BarChart3,
+  TrendingUp,
+  Loader2,
+  FolderMinus,
+  FolderOpen
 } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -571,35 +618,44 @@ const formatTime = (dateString) => {
 // 根据筛选器设置日期范围
 const setDatesByFilter = (filterValue) => {
   const today = new Date()
-  const formatDate = (date) => date.toISOString().split('T')[0]
+  // 使用本地时间格式化日期，避免时区问题
+  const formatDateForInput = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
   
   switch (filterValue) {
     case 'today':
       // 只查询今天
-      startDate.value = formatDate(today)
-      endDate.value = formatDate(today)
+      startDate.value = formatDateForInput(today)
+      endDate.value = formatDateForInput(today)
       break
       
     case 'week':
-      // 本周开始到今天
+      // 本周开始到今天（周一开始）
       const startOfWeek = new Date(today)
-      startOfWeek.setDate(today.getDate() - today.getDay())
-      startDate.value = formatDate(startOfWeek)
-      endDate.value = formatDate(today)
+      const dayOfWeek = today.getDay()
+      // 将周日(0)转换为7，然后计算到周一的天数
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+      startOfWeek.setDate(today.getDate() - daysToMonday)
+      startDate.value = formatDateForInput(startOfWeek)
+      endDate.value = formatDateForInput(today)
       break
       
     case 'month':
       // 本月1号到今天
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-      startDate.value = formatDate(startOfMonth)
-      endDate.value = formatDate(today)
+      startDate.value = formatDateForInput(startOfMonth)
+      endDate.value = formatDateForInput(today)
       break
       
     case 'year':
       // 今年1月1号到今天
       const startOfYear = new Date(today.getFullYear(), 0, 1)
-      startDate.value = formatDate(startOfYear)
-      endDate.value = formatDate(today)
+      startDate.value = formatDateForInput(startOfYear)
+      endDate.value = formatDateForInput(today)
       break
   }
 }
@@ -644,7 +700,7 @@ const generateSummary = () => {
   const timeRange = getTimeRangeText()
   
   let summary = `${timeRange}活动小结：\n\n`
-  summary += `📊 统计概览：\n`
+  summary += `统计概览：\n`
   summary += `• 推送次数：${pushCount} 次\n`
   summary += `• 提交数量：${commitCount} 个\n`
   summary += `• 文件变更：${fileChanges} 处\n`
@@ -658,7 +714,7 @@ const generateSummary = () => {
     dailyStats[date] = { pushes, commits, activities: dayActivities }
   })
   
-  summary += `📅 每日统计：\n`
+  summary += `每日统计：\n`
   Object.entries(dailyStats)
     .sort(([a], [b]) => new Date(b) - new Date(a))
     .forEach(([date, stats]) => {
@@ -673,7 +729,7 @@ const generateSummary = () => {
   summary += `\n`
   
   // 详细的提交内容
-  summary += `📝 详细提交记录：\n`
+  summary += `详细提交记录：\n`
   Object.entries(dailyStats)
     .sort(([a], [b]) => new Date(b) - new Date(a))
     .forEach(([date, stats]) => {

@@ -108,7 +108,7 @@ export const projectsApi = {
             eventSource.close();
             resolve({ answer: fullResponse, status: 'completed' });
           } else if (eventData.type === 'error') {
-            console.error('❌ AI报告生成错误:', eventData.message);
+            console.error('AI报告生成错误:', eventData.message);
             eventSource.close();
             reject(new Error(eventData.message || '生成报告时发生错误'));
           }
