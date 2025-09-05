@@ -1,4 +1,4 @@
-import{r as w,c as d,f as g,a as n,b as e,m as l,h as b,p as i,t as m,F as W,d as G,k as Ue,u as Pe,l as E,o as Ve,q as He,s as Be,x as ve,g as ie,v as ce,w as qe,y as We,T as Ge,z as Ye,i as Ze,A as Je,B as Xe,j as Ke,n as Qe}from"./index-GidTp_Uf.js";import{c as _,_ as et,C as q,A as de}from"./clock-CTKLyN7B.js";/**
+import{r as w,c as d,f as g,a as n,b as e,m as l,h as b,p as i,t as m,F as W,d as G,k as Ue,u as Pe,l as E,o as Ve,q as He,s as Be,x as ve,g as ie,v as ce,w as qe,y as We,T as Ge,z as Ye,i as Ze,A as Je,B as Xe,j as Ke,n as Qe}from"./index-21Di5s7V.js";import{c as _,_ as et,C as q,A as de}from"./clock-BJOxmytl.js";/**
  * @license lucide-vue-next v0.542.0 - ISC
  *
  * This source code is licensed under the ISC license.
@@ -88,12 +88,8 @@ import{r as w,c as d,f as g,a as n,b as e,m as l,h as b,p as i,t as m,F as W,d a
         </div>`;if(s.match(/^#+\s+/)){const u=s.match(/^#+/)[0].length,f=s.replace(/^#+\s+/,"");return`<div class="font-bold ${u===1?"text-lg":u===2?"text-base":"text-sm"} text-gray-900 mt-3 mb-2">${f}</div>`}return`<div class="mb-2 text-gray-800 leading-relaxed">${s}</div>`}).filter(r=>r).join(""):"",$=x=>x?x.split(`
 `).map(r=>{const s=r.trim();return s?s.replace(/^##\s*/,"").replace(/^#+\s*/,"").replace(/^\d+\.\s*/,u=>u).replace(/^[-•]\s*/,"• "):""}).filter(r=>r).join(`
 `):"",D=async x=>{let r="";switch(x){case"developer":r=`姓名：${h.reportData.developer}
-岗位：${h.reportData.position}`;break;case"workSummary":r=`本周工作完成情况：
-
-${$(h.reportData.work_summary)}`;break;case"nextPlan":r=`下周工作计划：
-
-${h.reportData.next_plan.map((u,f)=>`${f+1}. ${u}`).join(`
-`)}`;break}try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(r),k("showToast","内容已复制到剪贴板");else{const s=document.createElement("textarea");s.value=r,s.style.position="fixed",s.style.left="-999999px",s.style.top="-999999px",document.body.appendChild(s),s.focus(),s.select();try{const u=document.execCommand("copy");if(document.body.removeChild(s),u)k("showToast","内容已复制到剪贴板");else throw new Error("execCommand failed")}catch(u){document.body.removeChild(s),console.error("降级复制方法也失败:",u),k("showToast","复制失败，请手动选择并复制内容")}}}catch(s){console.error("复制失败:",s),s.name==="NotAllowedError"?k("showToast","复制权限被拒绝，请允许网站访问剪贴板"):k("showToast",`复制失败: ${s.message}`)}},Y=async()=>{const x=$(h.reportData.work_summary),r=`项目活动报告${h.projectName?` - ${h.projectName}`:""}
+岗位：${h.reportData.position}`;break;case"workSummary":r=$(h.reportData.work_summary);break;case"nextPlan":r=h.reportData.next_plan.map((u,f)=>`${f+1}. ${u}`).join(`
+`);break}try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(r),k("showToast","内容已复制到剪贴板");else{const s=document.createElement("textarea");s.value=r,s.style.position="fixed",s.style.left="-999999px",s.style.top="-999999px",document.body.appendChild(s),s.focus(),s.select();try{const u=document.execCommand("copy");if(document.body.removeChild(s),u)k("showToast","内容已复制到剪贴板");else throw new Error("execCommand failed")}catch(u){document.body.removeChild(s),console.error("降级复制方法也失败:",u),k("showToast","复制失败，请手动选择并复制内容")}}}catch(s){console.error("复制失败:",s),s.name==="NotAllowedError"?k("showToast","复制权限被拒绝，请允许网站访问剪贴板"):k("showToast",`复制失败: ${s.message}`)}},Y=async()=>{const x=$(h.reportData.work_summary),r=`项目活动报告${h.projectName?` - ${h.projectName}`:""}
 生成时间：${new Date().toLocaleString("zh-CN")}
 
 ================================
