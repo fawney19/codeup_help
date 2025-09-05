@@ -1,7 +1,21 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
-const API_BASE_URL = 'http://localhost:8000'
+// 动态获取API地址
+const getAPIBaseURL = () => {
+  // Docker部署环境：通过nginx反向代理，直接使用相对路径
+  if (window.location.port === '5111' || process.env.NODE_ENV === 'production') {
+    return '' // 使用相对路径，通过nginx代理到后端
+  }
+  // 如果是通过内网IP访问前端，后端也使用内网IP
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return `http://${window.location.hostname}:8000`
+  }
+  // 本地开发环境
+  return 'http://localhost:8000'
+}
+
+const API_BASE_URL = getAPIBaseURL()
 
 // 创建axios实例
 const api = axios.create({
@@ -89,7 +103,8 @@ export const projectsApi = {
       });
       
       const cookies = Cookies.get('codeup_cookies');
-      const url = `${API_BASE_URL}/api/v1/projects/${projectId}/reports/ai-generate-stream?${params}&X-Codeup-Cookies=${encodeURIComponent(cookies || '')}`;
+      const baseUrl = API_BASE_URL || window.location.origin; // 生产环境使用当前域名
+      const url = `${baseUrl}/api/v1/projects/${projectId}/reports/ai-generate-stream?${params}&X-Codeup-Cookies=${encodeURIComponent(cookies || '')}`;
       
       const eventSource = new EventSource(url);
       
@@ -140,7 +155,8 @@ export const aiApi = {
   // AI聊天 - 流式响应
   chatStream: (query, onProgress) => {
     return new Promise((resolve, reject) => {
-      const eventSource = new EventSource(`${API_BASE_URL}/api/v1/ai/chat-stream?${new URLSearchParams({
+      const baseUrl = API_BASE_URL || window.location.origin; // 生产环境使用当前域名
+      const eventSource = new EventSource(`${baseUrl}/api/v1/ai/chat-stream?${new URLSearchParams({
         query: query,
         user: 'frontend_user'
       })}`);

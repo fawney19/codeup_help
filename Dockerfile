@@ -17,13 +17,31 @@ RUN pip config set global.timeout 300 && \
     pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
     pip install --no-cache-dir --timeout 300 -r requirements.txt
 
-# 简单的nginx配置
+# 完整的nginx配置
 RUN echo 'server { \
     listen 80; \
+    server_name _; \
     root /var/www/html; \
     index index.html; \
-    location / { try_files $uri $uri/ /index.html; } \
-    location /api { proxy_pass http://127.0.0.1:8000; } \
+    \
+    # 前端路由 \
+    location / { \
+        try_files $uri $uri/ /index.html; \
+    } \
+    \
+    # API反向代理 \
+    location /api/ { \
+        proxy_pass http://127.0.0.1:8000/; \
+        proxy_set_header Host $host; \
+        proxy_set_header X-Real-IP $remote_addr; \
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
+        proxy_set_header X-Forwarded-Proto $scheme; \
+        proxy_buffering off; \
+        proxy_cache_bypass $http_upgrade; \
+        proxy_connect_timeout 60s; \
+        proxy_send_timeout 60s; \
+        proxy_read_timeout 60s; \
+    } \
 }' > /etc/nginx/sites-available/default
 
 # 启动脚本

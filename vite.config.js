@@ -15,6 +15,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    host: '0.0.0.0', // 允许外部访问
+    port: 5173,      // 指定端口
+  },
   build: {
     rollupOptions: {
       output: {
