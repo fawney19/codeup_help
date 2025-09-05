@@ -287,6 +287,34 @@
 
         <!-- Modal Content -->
         <div class="flex-1 overflow-auto p-6 bg-white">
+          <!-- Time Reminder - Only show before generation starts -->
+          <div v-if="!aiGenerating && !aiReport" class="flex flex-col items-center space-y-6">
+            <div class="bg-brutal-pink border-4 border-blue-600 shadow-brutal px-6 py-3 transform -rotate-1">
+              <div class="text-sm text-gray-800 font-black uppercase flex items-center justify-center">
+                <Clock class="w-4 h-4 mr-2 text-blue-600" />
+                预计耗时 30-60 秒
+              </div>
+            </div>
+            <div class="bg-brutal-cyan border-4 border-blue-600 shadow-brutal px-6 py-3 transform rotate-1">
+              <div class="text-sm text-gray-800 font-black uppercase flex items-center justify-center">
+                <X class="w-4 h-4 mr-2 text-blue-600" />
+                开始生成后可关闭窗口，生成不会中断
+              </div>
+            </div>
+            <div class="bg-brutal-yellow border-4 border-blue-600 shadow-brutal p-8 inline-block transform rotate-1 hover:-rotate-1 transition-transform duration-300">
+              <Sparkles class="w-16 h-16 text-blue-600 mb-4 mx-auto" />
+              <h3 class="text-2xl font-black text-gray-800 uppercase mb-4 flex items-center justify-center">
+                <Sparkles class="w-8 h-8 mr-3" />
+                AI智能报告
+              </h3>
+              <p class="text-sm font-bold text-gray-800 mb-4">点击上方按钮生成智能分析报告</p>
+              <div class="text-xs text-gray-600 font-bold flex items-center justify-center">
+                <Activity class="w-4 h-4 mr-2" />
+                AI将分析您的项目活动并生成详细报告
+              </div>
+            </div>
+          </div>
+
           <!-- Loading State -->
           <div v-if="aiGenerating && !aiReport" class="text-center py-12">
             <div class="bg-brutal-cyan border-4 border-blue-600 shadow-brutal p-8 inline-block transform -rotate-1">
@@ -369,22 +397,6 @@
                 class="whitespace-pre-wrap font-mono text-sm text-gray-800 leading-relaxed"
               >
                 {{ aiReport }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div v-else class="text-center py-12">
-            <div class="bg-brutal-yellow border-4 border-blue-600 shadow-brutal p-8 inline-block transform rotate-1 hover:-rotate-1 transition-transform duration-300">
-              <Sparkles class="w-16 h-16 text-blue-600 mb-4 mx-auto" />
-              <h3 class="text-2xl font-black text-gray-800 uppercase mb-4 flex items-center justify-center">
-                <Sparkles class="w-8 h-8 mr-3" />
-                AI智能报告
-              </h3>
-              <p class="text-sm font-bold text-gray-800 mb-4">点击上方按钮生成智能分析报告</p>
-              <div class="text-xs text-gray-600 font-bold flex items-center justify-center">
-                <Activity class="w-4 h-4 mr-2" />
-                AI将分析您的项目活动并生成详细报告
               </div>
             </div>
           </div>
@@ -534,15 +546,13 @@ const generateDuration = computed(() => {
     // 正在生成中，显示实时耗时（毫秒精度）
     const now = currentTime.value
     const durationMs = now - aiGenerateStartTime.value
-    const seconds = Math.floor(durationMs / 1000)
-    const milliseconds = Math.floor((durationMs % 1000) / 10) // 显示两位毫秒
-    return `${seconds}.${milliseconds.toString().padStart(2, '0')}秒`
+    const seconds = (durationMs / 1000).toFixed(1)
+    return `${parseFloat(seconds)}秒`
   } else if (aiGenerateEndTime.value) {
     // 已完成，显示总耗时
     const durationMs = aiGenerateEndTime.value - aiGenerateStartTime.value
-    const seconds = Math.floor(durationMs / 1000)
-    const milliseconds = Math.floor((durationMs % 1000) / 10) // 显示两位毫秒
-    return `${seconds}.${milliseconds.toString().padStart(2, '0')}秒`
+    const seconds = (durationMs / 1000).toFixed(1)
+    return `${parseFloat(seconds)}秒`
   }
   
   return null
@@ -770,10 +780,7 @@ const generateSummary = () => {
 const openAIReportModal = () => {
   showAIReportModal.value = true
   currentTime.value = new Date()
-  // 只有在没有正在生成且没有现有报告时才开始新的生成
-  if (activities.value.length > 0 && !aiGenerating.value && !aiReport.value) {
-    generateAIReport()
-  }
+  // 不自动开始生成，让用户看到提醒并手动点击生成
 }
 
 // 关闭AI报告模态框
