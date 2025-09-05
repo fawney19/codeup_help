@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+  <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
     <!-- 背景动画层 -->
     <div class="absolute inset-0 overflow-hidden">
       <!-- 漂浮圆形 -->
       <div 
         v-for="(circle, index) in floatingCircles" 
         :key="`circle-${index}`"
-        class="absolute rounded-full opacity-20 animate-bounce"
+        class="absolute rounded-full opacity-10 animate-bounce"
         :class="circle.color"
         :style="{
           left: circle.x + '%',
@@ -22,7 +22,7 @@
       <div 
         v-for="(square, index) in floatingSquares" 
         :key="`square-${index}`"
-        class="absolute opacity-15 animate-pulse transform"
+        class="absolute opacity-8 animate-pulse transform"
         :class="[square.color, square.rotation]"
         :style="{
           left: square.x + '%',
@@ -225,32 +225,32 @@ const helpSteps = ref([
 // 初始化动画元素
 const initAnimationElements = () => {
   // 生成漂浮圆形
-  floatingCircles.value = Array.from({ length: 12 }, (_, i) => ({
+  floatingCircles.value = Array.from({ length: 10 }, (_, i) => ({
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 80 + 40,
-    color: ['bg-brutal-yellow', 'bg-brutal-pink', 'bg-brutal-cyan', 'bg-brutal-green'][Math.floor(Math.random() * 4)],
+    size: Math.random() * 60 + 30,
+    color: ['bg-blue-200', 'bg-indigo-200', 'bg-gray-200', 'bg-slate-200'][Math.floor(Math.random() * 4)],
     delay: Math.random() * 5,
     duration: Math.random() * 3 + 4
   }))
 
   // 生成漂浮方形
-  floatingSquares.value = Array.from({ length: 8 }, (_, i) => ({
+  floatingSquares.value = Array.from({ length: 6 }, (_, i) => ({
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 60 + 30,
-    color: ['bg-brutal-orange', 'bg-brutal-purple', 'bg-brutal-blue', 'bg-brutal-red'][Math.floor(Math.random() * 4)],
+    size: Math.random() * 40 + 20,
+    color: ['bg-blue-100', 'bg-indigo-100', 'bg-gray-100', 'bg-slate-100'][Math.floor(Math.random() * 4)],
     rotation: ['rotate-12', 'rotate-45', '-rotate-12', '-rotate-45'][Math.floor(Math.random() * 4)],
     delay: Math.random() * 3,
     duration: Math.random() * 4 + 3
   }))
 
   // 生成小粒子
-  particles.value = Array.from({ length: 20 }, (_, i) => ({
+  particles.value = Array.from({ length: 15 }, (_, i) => ({
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 8 + 4,
-    color: ['bg-blue-400', 'bg-purple-400', 'bg-pink-400', 'bg-yellow-400'][Math.floor(Math.random() * 4)],
+    size: Math.random() * 6 + 3,
+    color: ['bg-blue-300', 'bg-indigo-300', 'bg-slate-300', 'bg-gray-300'][Math.floor(Math.random() * 4)],
     delay: Math.random() * 5,
     duration: Math.random() * 6 + 4
   }))
