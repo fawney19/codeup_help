@@ -261,34 +261,47 @@
         @click.stop
       >
         <!-- Modal Header -->
-        <div class="bg-brutal-yellow border-b-4 border-blue-600 p-6 flex items-center justify-between">
-          <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
-            <Sparkles class="w-6 h-6 mr-3 text-blue-600" />
-            AI智能报告
-          </h2>
-          <div class="flex items-center space-x-3">
-            <button 
-              @click="handleAIReportButtonClick"
-              :disabled="aiGenerating"
-              class="bg-brutal-green border-4 border-blue-600 shadow-brutal px-4 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              data-ai-generate-btn
-            >
-              <Sparkles class="w-4 h-4 mr-2 inline" />
-              {{ aiGenerating ? '生成中...' : (aiReport ? '重新生成' : '生成报告') }}
-            </button>
-            <button 
-              @click="closeAIReportModal"
-              class="bg-brutal-red border-4 border-blue-600 shadow-brutal px-3 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-            >
-              <X class="w-4 h-4" />
-            </button>
+        <div class="bg-brutal-yellow border-b-4 border-blue-600 p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <h2 class="text-2xl font-black text-gray-800 uppercase flex items-center">
+                <Sparkles class="w-6 h-6 mr-3 text-blue-600" />
+                AI智能报告
+              </h2>
+              <!-- 时间和耗时信息 -->
+              <span v-if="aiGenerateEndTime" class="bg-blue-600 text-white px-3 py-1 rounded flex items-center border-2 border-gray-800 text-xs">
+                <Calendar class="w-3 h-3 mr-1" />
+                {{ aiGenerateEndTime.toLocaleString('zh-CN') }}
+              </span>
+              <span v-if="generateDuration && !aiGenerating" class="bg-green-600 text-white px-3 py-1 rounded flex items-center border-2 border-gray-800 text-xs">
+                <Clock class="w-3 h-3 mr-1" />
+                {{ generateDuration }}
+              </span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button 
+                @click="handleAIReportButtonClick"
+                :disabled="aiGenerating"
+                class="bg-brutal-green border-4 border-blue-600 shadow-brutal px-4 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                data-ai-generate-btn
+              >
+                <Sparkles class="w-4 h-4 mr-2 inline" />
+                {{ aiGenerating ? '生成中...' : (aiReport ? '重新生成' : '生成报告') }}
+              </button>
+              <button 
+                @click="closeAIReportModal"
+                class="bg-brutal-red border-4 border-blue-600 shadow-brutal px-3 py-2 font-black text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+              >
+                <X class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Modal Content -->
         <div class="flex-1 overflow-auto p-6 bg-white">
           <!-- Time Reminder - Only show before generation starts -->
-          <div v-if="!aiGenerating && !aiReport" class="flex flex-col items-center space-y-6">
+          <div v-if="!aiGenerating && !aiReport && !aiReportData" class="flex flex-col items-center space-y-6">
             <div class="bg-brutal-pink border-4 border-blue-600 shadow-brutal px-6 py-3 transform -rotate-1">
               <div class="text-sm text-gray-800 font-black uppercase flex items-center justify-center">
                 <Clock class="w-4 h-4 mr-2 text-blue-600" />
@@ -350,25 +363,19 @@
           </div>
           
           <!-- AI Report Content -->
-          <div v-else-if="aiReport" class="space-y-6">
-            <div class="bg-brutal-pink border-4 border-blue-600 shadow-brutal p-4 flex items-center justify-between transform rotate-1">
-              <div>
-                <h3 class="text-xl font-black text-gray-800 uppercase flex items-center">
-                  <FileText class="w-5 h-5 mr-2" />
-                  报告内容
-                </h3>
-                <div class="flex items-center space-x-4 mt-2 text-sm font-bold text-gray-600">
-                  <span v-if="aiGenerateEndTime" class="bg-blue-600 text-white px-2 py-1 rounded flex items-center">
-                    <Calendar class="w-3 h-3 mr-1" />
-                    {{ aiGenerateEndTime.toLocaleString('zh-CN') }}
-                  </span>
-                  <span v-if="generateDuration" class="bg-blue-600 text-white px-2 py-1 rounded flex items-center">
-                    <Clock class="w-3 h-3 mr-1" />
-                    {{ generateDuration }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex space-x-2">
+          <div v-else-if="aiReport || aiReportData">
+            <!-- 结构化报告展示 -->
+            <AIReportDisplay 
+              v-if="aiReportData" 
+              :reportData="aiReportData" 
+              :projectName="projectName"
+              @showToast="showCopyToast"
+            />
+            
+            <!-- 传统文本报告展示 -->
+            <div v-else-if="aiReport" class="space-y-4">
+              <!-- 传统报告操作按钮 -->
+              <div class="flex justify-end space-x-2">
                 <button 
                   @click="copyReport"
                   class="bg-brutal-cyan border-4 border-blue-600 shadow-brutal-sm px-3 py-2 font-bold text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xs"
@@ -388,34 +395,36 @@
                   class="bg-brutal-orange border-4 border-blue-600 shadow-brutal-sm px-3 py-2 font-bold text-gray-800 uppercase hover:transform hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all text-xs"
                 >
                   <Download class="w-3 h-3 mr-1 inline" />
-                  下载
+                  下载(MD)
                 </button>
               </div>
-            </div>
-            <div 
-              ref="reportContainer"
-              class="border-4 border-blue-600 shadow-brutal-sm p-6 overflow-auto max-h-96 scroll-smooth bg-white transform -rotate-1"
-            >
-              <!-- 加载中显示 -->
-              <div v-if="aiGenerating" class="flex flex-col items-center justify-center py-12">
-                <div class="bg-brutal-orange border-4 border-blue-600 shadow-brutal p-4 inline-block">
-                  <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-                </div>
-                <p class="text-gray-800 font-bold text-sm mt-4 flex items-center justify-center">
-                  <Activity class="w-4 h-4 mr-2" />
-                  正在生成AI报告...
-                </p>
-                <p v-if="generateDuration" class="text-gray-600 font-bold text-xs mt-2 flex items-center justify-center">
-                  <Clock class="w-3 h-3 mr-1" />
-                  {{ generateDuration }}
-                </p>
-              </div>
-              <!-- 生成完成后显示报告内容 -->
+              
+              <!-- 传统文本报告内容 -->
               <div 
-                v-else 
-                class="whitespace-pre-wrap font-mono text-sm text-gray-800 leading-relaxed"
+                ref="reportContainer"
+                class="border-4 border-blue-600 shadow-brutal-sm p-6 overflow-auto max-h-96 scroll-smooth bg-white transform -rotate-1"
               >
-                {{ aiReport }}
+                <!-- 加载中显示 -->
+                <div v-if="aiGenerating" class="flex flex-col items-center justify-center py-12">
+                  <div class="bg-brutal-orange border-4 border-blue-600 shadow-brutal p-4 inline-block">
+                    <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+                  </div>
+                  <p class="text-gray-800 font-bold text-sm mt-4 flex items-center justify-center">
+                    <Activity class="w-4 h-4 mr-2" />
+                    正在生成AI报告...
+                  </p>
+                  <p v-if="generateDuration" class="text-gray-600 font-bold text-xs mt-2 flex items-center justify-center">
+                    <Clock class="w-3 h-3 mr-1" />
+                    {{ generateDuration }}
+                  </p>
+                </div>
+                <!-- 生成完成后显示报告内容 -->
+                <div 
+                  v-else 
+                  class="whitespace-pre-wrap font-mono text-sm text-gray-800 leading-relaxed"
+                >
+                  {{ aiReport }}
+                </div>
               </div>
             </div>
           </div>
@@ -474,6 +483,7 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import AIReportDisplay from '@/components/AIReportDisplay.vue'
 import {
   ArrowLeft,
   RefreshCw,
@@ -519,6 +529,7 @@ const startDate = ref('')
 const endDate = ref('')
 const summaryText = ref('') // 内部变量，不显示
 const aiReport = ref('') // 完整的报告内容
+const aiReportData = ref(null) // 结构化的报告数据
 const aiGenerating = ref(false)
 const aiGenerateStartTime = ref(null) // 开始生成时间
 const aiGenerateEndTime = ref(null) // 完成生成时间
@@ -716,6 +727,7 @@ const loadActivities = async () => {
     // Clear previous summaries when loading new data
     summaryText.value = ''
     aiReport.value = ''
+    aiReportData.value = null
     
   } catch (error) {
     console.error('Failed to load activities:', error)
@@ -849,6 +861,7 @@ const handleAIReportButtonClick = () => {
   
   // 重置状态，强制重新生成
   aiReport.value = ''
+  aiReportData.value = null
   aiGenerateStartTime.value = null
   aiGenerateEndTime.value = null
   currentTime.value = new Date()
@@ -869,6 +882,7 @@ const generateAIReport = async () => {
   try {
     aiGenerating.value = true
     aiReport.value = ''
+    aiReportData.value = null
     aiGenerateStartTime.value = new Date()
     aiGenerateEndTime.value = null
     
@@ -908,7 +922,26 @@ ${additionalInfo.value.trim()}`
     const response = await projectsApi.generateAIReportBlocking(props.id, reportData)
     
     if (response && response.data && response.data.answer) {
-      aiReport.value = response.data.answer
+      const reportContent = response.data.answer
+      
+      // 尝试解析为JSON结构化数据
+      try {
+        const parsedReport = JSON.parse(reportContent)
+        if (parsedReport.developer && parsedReport.position && parsedReport.work_summary && parsedReport.next_plan) {
+          // 是结构化数据，使用新的展示组件
+          aiReportData.value = parsedReport
+          aiReport.value = '' // 清空文本报告
+        } else {
+          // 不是预期的结构化数据，使用传统文本展示
+          aiReport.value = reportContent
+          aiReportData.value = null
+        }
+      } catch (error) {
+        // JSON解析失败，使用传统文本展示
+        aiReport.value = reportContent
+        aiReportData.value = null
+      }
+      
       aiGenerateEndTime.value = new Date()
       // 清除定时器
       if (generateTimer.value) {
