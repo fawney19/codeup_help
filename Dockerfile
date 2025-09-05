@@ -22,7 +22,11 @@ COPY --from=builder /app/dist /var/www/html
 
 # 复制Python代码和依赖
 COPY python_server/ ./
-RUN pip install --no-cache-dir -r requirements.txt
+
+# 配置pip超时和镜像源，然后安装依赖
+RUN pip config set global.timeout 300 && \
+    pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip install --no-cache-dir --timeout 300 -r requirements.txt
 
 # 简单的nginx配置
 RUN echo 'server { \
