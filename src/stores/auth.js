@@ -52,6 +52,16 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     cookies.value = null
     Cookies.remove('codeup_cookies')
+    
+    // 清理项目缓存
+    try {
+      import('@/stores/projects').then(({ useProjectsStore }) => {
+        const projectsStore = useProjectsStore()
+        projectsStore.clearData()
+      })
+    } catch (e) {
+      console.warn('Failed to clear projects cache:', e)
+    }
   }
 
   // 初始化时检查登录状态

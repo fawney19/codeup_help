@@ -49,6 +49,18 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // 清除无效的 cookies
       Cookies.remove('codeup_cookies')
+      
+      // 触发认证状态清理
+      try {
+        // 动态导入避免循环依赖
+        import('@/stores/auth').then(({ useAuthStore }) => {
+          const authStore = useAuthStore()
+          authStore.logout() // 这会清理用户状态和项目缓存
+        })
+      } catch (e) {
+        console.warn('Failed to clear auth state:', e)
+      }
+      
       // 重定向到登录页面
       window.location.href = '/login'
     }
