@@ -1,15 +1,4 @@
-# 单容器部署 - 前后端一体化
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# 构建前端
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# Python环境
+# 单容器部署 - 前后端一体化（使用已构建的前端）
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -17,8 +6,8 @@ WORKDIR /app
 # 安装nginx
 RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
-# 复制前端构建产物到nginx目录
-COPY --from=builder /app/dist /var/www/html
+# 复制已构建的前端产物到nginx目录
+COPY dist/ /var/www/html/
 
 # 复制Python代码和依赖
 COPY python_server/ ./

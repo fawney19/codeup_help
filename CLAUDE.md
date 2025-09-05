@@ -34,6 +34,17 @@ python test_ai_report.py
 /opt/homebrew/Caskroom/miniconda/base/envs/Test/bin/python test_ai_report.py
 ```
 
+### Docker部署
+```bash
+# 部署步骤
+npm run build                  # 本地构建前端
+docker-compose up -d --build   # 构建并启动容器
+
+# 其他命令
+docker-compose logs -f         # 查看日志
+docker-compose down           # 停止服务
+```
+
 ## 系统架构
 
 ### 前端架构 (src/)
