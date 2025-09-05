@@ -728,8 +728,9 @@ const generateSummary = () => {
   
   const { pushCount, commitCount, fileChanges, activeDays } = activitySummary.value
   const timeRange = getTimeRangeText()
+  const userName = authStore.user?.name || authStore.user?.email?.split('@')[0] || '开发者'
   
-  let summary = `${timeRange}活动小结：\n\n`
+  let summary = `${timeRange}活动小结（开发者：${userName}）：\n\n`
   summary += `统计概览：\n`
   summary += `• 推送次数：${pushCount} 次\n`
   summary += `• 提交数量：${commitCount} 个\n`
