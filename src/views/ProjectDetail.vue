@@ -301,6 +301,25 @@
                 开始生成后可关闭窗口，生成不会中断
               </div>
             </div>
+            
+            <!-- 信息补充输入框 -->
+            <div class="w-full max-w-2xl">
+              <div class="bg-brutal-green border-4 border-blue-600 shadow-brutal p-6">
+                <h3 class="text-lg font-black text-gray-800 uppercase mb-4 flex items-center">
+                  <FileText class="w-5 h-5 mr-2 text-blue-600" />
+                  信息补充 (可选)
+                </h3>
+                <textarea 
+                  v-model="additionalInfo"
+                  placeholder="您可以在这里补充项目背景信息、工作内容说明或其他需要AI了解的信息，以便生成更精准的报告..."
+                  class="w-full h-32 p-4 border-4 border-blue-600 font-bold text-gray-800 text-sm resize-none focus:outline-none focus:bg-brutal-cyan placeholder:text-gray-500 placeholder:font-normal"
+                ></textarea>
+                <div class="mt-2 text-xs text-gray-600 font-bold">
+                  提示：添加相关背景信息可以让AI生成更具体、更有价值的分析报告
+                </div>
+              </div>
+            </div>
+            
             <div class="bg-brutal-yellow border-4 border-blue-600 shadow-brutal p-8 inline-block transform rotate-1 hover:-rotate-1 transition-transform duration-300">
               <Sparkles class="w-16 h-16 text-blue-600 mb-4 mx-auto" />
               <h3 class="text-2xl font-black text-gray-800 uppercase mb-4 flex items-center justify-center">
@@ -506,6 +525,7 @@ const aiGenerateEndTime = ref(null) // 完成生成时间
 const generateTimer = ref(null) // 用于更新实时耗时的定时器
 const showAIReportModal = ref(false)
 const collapsedDates = ref(new Set())
+const additionalInfo = ref('') // 用户输入的补充信息
 
 // DOM refs
 const reportContainer = ref(null)
@@ -859,16 +879,26 @@ const generateAIReport = async () => {
     // 先生成内部小结（不显示给用户）
     generateSummary()
     
-    // 准备AI报告请求数据
+    // 准备AI报告请求数据，包含用户补充信息
+    let contextContent = `项目：${projectName.value}
+时间范围：${getTimeRangeText()}
+活动总结：${summaryText.value}`
+    
+    // 如果用户输入了补充信息，添加到上下文中
+    if (additionalInfo.value && additionalInfo.value.trim()) {
+      contextContent += `
+
+用户补充信息：
+${additionalInfo.value.trim()}`
+    }
+    
     const reportData = {
       project_id: parseInt(props.id),
       report_type: 'activity_summary',
       time_range: 'custom',
       start_date: startDate.value,
       end_date: endDate.value,
-      additional_context: `项目：${projectName.value}
-时间范围：${getTimeRangeText()}
-活动总结：${summaryText.value}`,
+      additional_context: contextContent,
       response_mode: 'blocking',
       user: 'frontend_user'
     }
