@@ -211,10 +211,10 @@ const copySection = async (section) => {
       break
     case 'workSummary':
       const plainWorkSummary = convertToPlainText(props.reportData.work_summary)
-      content = `本周工作完成情况：\n\n${plainWorkSummary}`
+      content = plainWorkSummary
       break
     case 'nextPlan':
-      content = `下周工作计划：\n\n${props.reportData.next_plan.map((plan, index) => `${index + 1}. ${plan}`).join('\n')}`
+      content = props.reportData.next_plan.map((plan, index) => `${index + 1}. ${plan}`).join('\n')
       break
   }
   
