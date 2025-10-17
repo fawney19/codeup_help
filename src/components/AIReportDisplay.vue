@@ -126,54 +126,30 @@ const props = defineProps({
 
 const emit = defineEmits(['showToast'])
 
-// 格式化工作总结，支持多种格式
+// 格式化工作总结，支持简单列表格式（1. 2. 3.）
 const formatWorkSummary = (workSummary) => {
   if (!workSummary) return ''
-  
+
   // 将工作总结按行分割，然后格式化
   return workSummary
     .split('\n')
     .map(line => {
       const trimmedLine = line.trim()
-      
+
       // 跳过空行
       if (!trimmedLine) return ''
-      
-      // 识别日期标题行（多种格式）
-      // 支持: ## 2025年9月1日 星期一 或者 2025年9月1日 星期一
-      if (trimmedLine.match(/^(##\s+)?\d{4}年\d{1,2}月\d{1,2}日.*星期[一二三四五六日]/)) {
-        const dateText = trimmedLine.replace(/^##\s*/, '').trim()
-        return `<div class="bg-blue-600 text-white px-3 py-1 rounded font-bold text-sm mb-3 mt-4 first:mt-0 inline-block">${dateText}</div>`
-      }
-      
+
       // 识别数字列表项 (1. 内容)
       if (trimmedLine.match(/^\d+\.\s+/)) {
         const number = trimmedLine.match(/^(\d+)/)[1]
         const content = trimmedLine.replace(/^\d+\.\s+/, '')
-        return `<div class="ml-4 mb-2 flex items-start">
-          <span class="bg-brutal-green text-gray-800 w-6 h-6 flex items-center justify-center text-xs font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">${number}</span>
+        return `<div class="mb-2 flex items-start">
+          <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">${number}</span>
           <span class="text-gray-800 leading-relaxed">${content}</span>
         </div>`
       }
-      
-      // 识别无序列表项 (- 内容 或 • 内容)
-      if (trimmedLine.match(/^[-•]\s+/)) {
-        const content = trimmedLine.replace(/^[-•]\s+/, '')
-        return `<div class="ml-4 mb-2 flex items-start">
-          <span class="bg-brutal-cyan text-gray-800 w-4 h-4 flex items-center justify-center text-xs font-bold rounded-full mr-3 mt-1 flex-shrink-0">•</span>
-          <span class="text-gray-800 leading-relaxed">${content}</span>
-        </div>`
-      }
-      
-      // 识别标题行（以 # 开始）
-      if (trimmedLine.match(/^#+\s+/)) {
-        const level = (trimmedLine.match(/^#+/)[0]).length
-        const content = trimmedLine.replace(/^#+\s+/, '')
-        const fontSize = level === 1 ? 'text-lg' : level === 2 ? 'text-base' : 'text-sm'
-        return `<div class="font-bold ${fontSize} text-gray-900 mt-3 mb-2">${content}</div>`
-      }
-      
-      // 普通文本行
+
+      // 普通文本行（如果不是数字列表项，则作为普通文本显示）
       return `<div class="mb-2 text-gray-800 leading-relaxed">${trimmedLine}</div>`
     })
     .filter(html => html) // 过滤掉空字符串
@@ -183,19 +159,20 @@ const formatWorkSummary = (workSummary) => {
 // 将工作总结转换为纯文本
 const convertToPlainText = (text) => {
   if (!text) return ''
-  
+
   return text
     .split('\n')
     .map(line => {
       const trimmedLine = line.trim()
       if (!trimmedLine) return ''
-      
-      // 移除markdown标记，保留内容
+
+      // 保留数字列表格式
+      if (trimmedLine.match(/^\d+\.\s+/)) {
+        return trimmedLine
+      }
+
+      // 其他文本行直接返回
       return trimmedLine
-        .replace(/^##\s*/, '') // 移除二级标题标记
-        .replace(/^#+\s*/, '') // 移除其他标题标记
-        .replace(/^\d+\.\s*/, (match) => match) // 保留数字列表
-        .replace(/^[-•]\s*/, '• ') // 统一无序列表标记
     })
     .filter(line => line) // 移除空行
     .join('\n')
