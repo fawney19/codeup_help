@@ -4,7 +4,7 @@ services:
     ports:
       - "5111:80"   # 前端 + nginx反向代理
     environment:
-      - DIFY_API_URL=${DIFY_API_URL:-https://api.dify.ai/v1}
+      - DIFY_BASE_URL=${DIFY_BASE_URL:-https://dify.hetunai.cn/v1}
       - DIFY_API_KEY=${DIFY_API_KEY}
     env_file:
       - .env

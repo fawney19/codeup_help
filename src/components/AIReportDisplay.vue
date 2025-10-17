@@ -139,10 +139,11 @@ const formatWorkSummary = (workSummary) => {
       // 跳过空行
       if (!trimmedLine) return ''
 
-      // 识别数字列表项 (1. 内容)
-      if (trimmedLine.match(/^\d+\.\s+/)) {
-        const number = trimmedLine.match(/^(\d+)/)[1]
-        const content = trimmedLine.replace(/^\d+\.\s+/, '')
+      // 识别数字列表项 (1. 内容 或 1.内容)，支持没有空格的情况
+      const numberMatch = trimmedLine.match(/^(\d+)\.\s*(.+)/)
+      if (numberMatch) {
+        const number = numberMatch[1]
+        const content = numberMatch[2]
         return `<div class="mb-2 flex items-start">
           <span class="bg-blue-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold rounded-full mr-3 mt-0.5 flex-shrink-0">${number}</span>
           <span class="text-gray-800 leading-relaxed">${content}</span>
@@ -166,8 +167,8 @@ const convertToPlainText = (text) => {
       const trimmedLine = line.trim()
       if (!trimmedLine) return ''
 
-      // 保留数字列表格式
-      if (trimmedLine.match(/^\d+\.\s+/)) {
+      // 保留数字列表格式 (支持有空格和没有空格的情况)
+      if (trimmedLine.match(/^\d+\.\s*/)) {
         return trimmedLine
       }
 
